@@ -1,0 +1,108 @@
+<html>
+<head>
+    <title>ITE 2014 | Lucky Draw</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <link rel="stylesheet" href="styles/style.css" />
+    <link rel="stylesheet" href="styles/odometer-theme-plaza.css" />
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300,700&amp;subset=latin,vietnamese" rel="stylesheet" type="text/css">
+    <script src="js/odometer.js"></script>
+    <script src="js/infory-cookie.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<body>
+    <div class="main-content">
+        <h1>QUAY SỐ TRÚNG THƯỞNG | ITE 2014</h1>
+        <h2>Cùng Du lịch & giải trí - đi du lịch miễn phí!</h2>
+        <h1 id="odometer" class="phone-number odometer">000</h1>
+        <h3 id="username"></h3>
+        <div id="nextBtn" class="button">QUAY TIẾP</div>
+        <div id="nextBtn1" class="greyButton" style="display: none;">QUAY TIẾP</div>
+        <div id="cancelBtn" class="button">BỎ QUA</div>
+    </div>
+    <div class="detail-content">
+        <h3>Số điện thoại đã trúng thưởng</h3>
+        <ol id="phoneList" reversed>
+        </ol>
+    </div>
+     <script>
+        setTimeout(function(){
+            odometer.innerHTML = 100;
+        }, 200);
+    </script>
+    <script type="text/javascript" charset="utf-8">
+        var winner = undefined;
+        var name;
+
+        function lockElement(elementName,time) {
+            $("#"+elementName).hide();
+            $("#nextBtn1").show();
+            setTimeout(function(){
+                $("#"+elementName).show();
+                $("#nextBtn1").hide();
+            }, time)
+        }
+
+        $(document).ready(function() {
+            $("#nextBtn").on('click', function(){
+                lockElement("nextBtn",5000);                
+                $.post( "https://api.infory.vn/v1/giftcode/ite2014/lucky_draw?api_key=7acc92ccb2f25c44861d5f25f549fa8a")
+                /*$.post( "http://192.168.1.102/smartguide/web/app_dev.php/v1/giftcode/ite2014/lucky_draw?api_key=7acc92ccb2f25c44861d5f25f549fa8a")*/
+                .done(function(data) {
+                    phone = data.phone;
+                    
+                    if(winner !== undefined && winner.id !== undefined && winner.id != data.id)
+                    {
+                        name = winner.name;
+                        if(name == "null" || name == "")
+                            name = "Không Biết";
+
+                        $( "#phoneList" ).prepend('<li class="phone-number">'
+                            +name+' - '+winner.phone+'</li>');
+
+                        $.post( "https://api.infory.vn/v1/giftcode/ite2014/mark_received?api_key=7acc92ccb2f25c44861d5f25f549fa8a",{'customer_id':winner.id,'giftcode_id':winner.giftcode_id, 'received':"1"})
+                            .done(function(data) {
+                                console.log(data);
+                            }).fail(function(data)
+                            {
+                            });
+                    }
+                    //phone = Math.floor((Math.random() * 1000000000) + 100000000);
+                    odometer.innerHTML = phone;
+                    
+                    if(data.id !== undefined)
+                    {
+                        
+                        name = data.name;
+                                                if(name == "null" || name == "")
+                                                    name = "Không Biết";
+
+
+                        var username = document.getElementById("username");
+                        username.innerHTML = "Khách hàng may mắn: "+name;  
+                        $("#username").show();
+                    }
+                                          
+                    winner = data;
+                    //winner = {id: 1, name: "Nguyen Van A", phone: phone}
+                }).fail(function(data)
+                {
+                    odometer.innerHTML = 0;
+                });
+            })
+            $("#cancelBtn").on('click', function(){
+                odometer.innerHTML = 0;
+                $.post( "https://api.infory.vn/v1/giftcode/ite2014/mark_received?api_key=7acc92ccb2f25c44861d5f25f549fa8a",{'customer_id':winner.id,'giftcode_id':winner.giftcode_id, 'received':"0"})
+                .done(function(data) {
+                    console.log(data);
+                }).fail(function(data)
+                {
+                });
+                winner = undefined;
+                $("#username").hide();
+            })
+     })
+    </script>
+</body>
+</html>
