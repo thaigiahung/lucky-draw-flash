@@ -7,7 +7,7 @@
 
 module.exports = {
 	create: function(req, res) {
-		for (var i=0; i<2; i++) {
+		for (var i=0; i<10; i++) {
 			User.create({'status':0}).exec(function(err, newUser){
 				console.log(newUser);
 				res.status(201);
@@ -15,25 +15,33 @@ module.exports = {
 			});
 		}
 	},
-
-	reward: function(req, res) {
-		User.update({'id':req.params.id},{'status':1}).exec(function(err, u){
-			if (err) {
-				console.log(err);
-			} else {
-				console.log(u);
-				res.send("ok");
-			}
-		});
-	},
+	// reset: function(req, res) {
+	// 	User.find().exec(function(err, listUser){
+	// 		if (!err) {
+	// 			for`	
+	// 		}
+	// 	});
+	// },
 
 	random: function(req, res) {
 		User.find({'status':0}).exec(function(err, listUser){
 			if(err) {
 				console.log(err);
 			} else {
+				console.log("listuser: " + listUser.length);
+
 				var rand = Utilservice.getRandomInt(0, listUser.length);
-				res.ok(listUser[rand].toJSON());
+				console.log("rand: " + rand);
+
+				User.update(listUser[rand].toJSON(),{'status':1}).exec(function(err, u){
+					if (err) {
+						console.log(err);
+					} else {
+						res.ok(listUser[rand].toJSON());
+						console.log(u);
+					}	
+				});
+
 			}
 		});
 	}
