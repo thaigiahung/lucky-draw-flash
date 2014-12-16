@@ -15,13 +15,23 @@ module.exports = {
 			});
 		}
 	},
-	// reset: function(req, res) {
-	// 	User.find().exec(function(err, listUser){
-	// 		if (!err) {
-	// 			for`	
-	// 		}
-	// 	});
-	// },
+
+	reset: function(req, res) {
+		User.find().exec(function(err, listUser){
+			if (!err) {
+				for(var i=0; i<listUser.length; i++) {
+					User.update({"id":i}, {'status':0}).exec(function(err, u){
+						if(err){
+							console.log(err);
+						} else {
+							res.ok("DONE");
+						}
+					});
+				}			
+			}	
+		})
+		
+	},
 
 	random: function(req, res) {
 		User.find({'status':0}).exec(function(err, listUser){
