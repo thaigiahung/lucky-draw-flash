@@ -7,13 +7,19 @@
 
 module.exports = {
 	create: function(req, res) {
-		for (var i=0; i<10; i++) {
-			User.create({'status':0}).exec(function(err, newUser){
-				console.log(newUser);
-				res.status(201);
-				res.ok(newUser.toJSON());
-			});
-		}
+		User.find().exec(function(err,uList){
+			console.log(uList.length);
+			if (!err) {
+				for (var i=uList.length+1; i<req.params.id;  i++) {
+					User.create({'status':0}).exec(function(err, newUser){
+						console.log(newUser);
+						res.status(201);
+						res.ok(newUser.toJSON());
+					});
+				}
+			}
+		});
+		
 	},
 
 	reset: function(req, res) {
